@@ -12,8 +12,13 @@ a.navbar-brand {
   word-break: break-all;
 }
 
-.navbar .nav-link {
+.corsair-font {
   font-family: 'BebasNeuePro-SmEBd', sans-serif;
+  letter-spacing: -1px;
+  text-transform: uppercase;
+}
+
+.navbar .nav-link {  
   font-size: 14px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
