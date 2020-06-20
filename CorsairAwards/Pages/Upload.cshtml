@@ -1,8 +1,103 @@
 @page
-@model IndexModel
+@model UploadModel
 @{
     ViewData["Title"] = "Upload";
 }
 
 <div class="text-center">
+    <div>
+        <h3>Upload</h3>
+        <form method="post" enctype="multipart/form-data" onsubmit="return false;" id="upload-form">
+            <input type="file" id="Upload" accept=".csv" asp-for="Upload" onchange="FileSelected(this);return false;" />
+            <label id="label" for="Upload">Select CSV</label>
+        </form>
+        <div id="loader" class="loader"></div>
+        <output id="result"></output>
+    </div>
 </div>
+
+<script>
+  async function FileSelected (fileInput) {
+    console.log(fileInput);
+    document.getElementById('label').innerText = fileInput.files[0].name;
+    document.getElementById('loader').style.display = "block";
+    const form = document.getElementById('upload-form');
+    
+    try {
+      const response = await fetch(form.action, {
+        method: 'POST',
+        body: new FormData(form)
+      });        
+      document.getElementById('result').innerText = 
+        'Result: ' + response.status + ' ' + response.statusText;
+    } catch (error) {
+      console.error('Error:', error);
+    }
+      
+    document.getElementById('loader').style.display = "none";
+  }
+</script>
+
+<style>
+[type="file"] {
+  border: 0;
+  clip: rect(0, 0, 0, 0);
+  height: 1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute !important;
+  white-space: nowrap;
+  width: 1px;
+}
+
+[type="file"] + label {
+  background-color: #fff;
+  border-radius: 4rem;
+  color: #000;
+  cursor: pointer;
+  display: inline-block;
+  font-family: "Poppins", sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  height: 4rem;
+  line-height: 4rem;
+  padding-left: 2rem;
+  padding-right: 2rem;
+  transition: background-color 0.3s;
+  border: 2px #0387df solid;
+}
+
+[type="file"]:focus + label,
+[type="file"] + label:hover {
+  background-color: #3498db;
+}
+
+[type="file"]:focus + label {
+  outline: 1px dotted #000;
+  outline: -webkit-focus-ring-color auto 5px;
+}
+
+[type="file"] + label * {
+  pointer-events: none;
+}
+
+.loader {
+  border: 16px solid #f3f3f3; /* Light grey */
+  border-top: 16px solid #3498db; /* Blue */
+  border-radius: 50%;
+  width: 120px;
+  height: 120px;
+  animation: spin 2s linear infinite;
+  margin: auto;
+  display: none;
+}
+
+@@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+</style>
