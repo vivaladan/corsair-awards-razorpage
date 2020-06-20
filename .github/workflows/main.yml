@@ -29,4 +29,10 @@ jobs:
         platform: dotnet
         version: 3.1
         output-directory: dist
+        
+    - name: Deploy to Azure App Service
+      uses: azure/webapps-deploy@v1
+      with:
+        app-name: corsair-awards
+        package: dist
 
