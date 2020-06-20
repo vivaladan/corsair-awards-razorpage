@@ -30,6 +30,11 @@ jobs:
         version: 3.1
         output-directory: dist
         
+    - name: az login
+      uses: azure/login@v1.1
+      with:
+        creds: ${{secrets.AZURE_CREDENTIALS}}
+        
     - name: Deploy to Azure App Service
       uses: azure/webapps-deploy@v1
       with:
