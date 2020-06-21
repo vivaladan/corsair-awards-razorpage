@@ -18,7 +18,6 @@
 
 <script>
   async function FileSelected (fileInput) {
-    console.log(fileInput);
     document.getElementById('label').innerText = fileInput.files[0].name;
     document.getElementById('loader').style.display = "block";
     const form = document.getElementById('upload-form');
@@ -27,9 +26,19 @@
       const response = await fetch(form.action, {
         method: 'POST',
         body: new FormData(form)
-      });        
-      document.getElementById('result').innerText = 
-        'Result: ' + response.status + ' ' + response.statusText;
+      });
+      
+      let message = '';
+      
+      if (response.ok) {
+        const data = await response.json();
+        message = `${data.count} samples processed`
+      }
+      else {
+        message = `Error: ${response.status} returned from server. ${response.statusText}`
+      }
+      
+      document.getElementById('result').innerText = message;
     } catch (error) {
       console.error('Error:', error);
     }

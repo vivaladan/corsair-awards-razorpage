@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-
+using CorsairAwards.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -12,24 +12,31 @@ namespace CorsairAwards.Pages
 {
     public class UploadModel : PageModel
     {
-        private readonly ILogger<IndexModel> _logger;
+        private readonly ILogger<IndexModel> logger;
+        private readonly CsvParser _csvParser;
 
-        public UploadModel(ILogger<IndexModel> logger)
+        public UploadModel(
+            ILogger<IndexModel> logger,
+            CsvParser csvParser)
         {
-            _logger = logger;
+            this.logger = logger;
+            this._csvParser = csvParser;
         }
 
         public void OnGet()
         {
-
         }
         
         [BindProperty]
         public IFormFile Upload { get; set; }
 
-        public Task OnPostAsync()
+        public JsonResult OnPostAsync()
         {
-            return Task.CompletedTask;
+            var samples = _csvParser.ParseCsv(Upload.OpenReadStream());
+            return new JsonResult(new
+            {
+                Count = samples.Count
+            });
         }
     }
 }
