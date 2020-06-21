@@ -1,0 +1,57 @@
+﻿@page
+@using CorsairAwards.Services
+@model SamplesModel
+@{
+    ViewData["Title"] = "Samples";
+}
+
+<div>
+    <div class="text-center">
+        <h2 class="display-4 corsair-font">Samples</h2>
+    </div>
+    <div>
+        <table class="table">
+            <thead>
+            <tr>
+                <th scope="col">
+                    Site
+                </th>
+                <th scope="col">
+                    Purpose
+                </th>
+                <th scope="col">
+                    Category
+                </th>
+                <th scope="col">
+                    Part
+                </th>
+                <th scope="col">
+                    Action
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var sample in Model.Samples)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(c => sample.Site)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(c => sample.Purpose)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(c => sample.Category)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(c => sample.PartDescription)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(c => sample.Action)
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</div>

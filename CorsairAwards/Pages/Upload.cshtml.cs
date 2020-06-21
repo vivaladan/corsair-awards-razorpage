@@ -13,14 +13,17 @@ namespace CorsairAwards.Pages
     public class UploadModel : PageModel
     {
         private readonly ILogger<IndexModel> logger;
-        private readonly CsvParser _csvParser;
+        private readonly CsvParser csvParser;
+        private readonly IRepository repository;
 
         public UploadModel(
             ILogger<IndexModel> logger,
-            CsvParser csvParser)
+            CsvParser csvParser,
+            IRepository repository)
         {
             this.logger = logger;
-            this._csvParser = csvParser;
+            this.csvParser = csvParser;
+            this.repository = repository;
         }
 
         public void OnGet()
@@ -30,9 +33,11 @@ namespace CorsairAwards.Pages
         [BindProperty]
         public IFormFile Upload { get; set; }
 
-        public JsonResult OnPostAsync()
+        public async Task<JsonResult> OnPostAsync()
         {
-            var samples = _csvParser.ParseCsv(Upload.OpenReadStream());
+            var samples = csvParser.ParseCsv(Upload.FileName, Upload.OpenReadStream());
+            await repository.InsertOrUpdateSamples(samples);
+            
             return new JsonResult(new
             {
                 Count = samples.Count

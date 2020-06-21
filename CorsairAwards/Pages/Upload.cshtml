@@ -5,10 +5,12 @@
 }
 
 <div class="text-center">
+    <div class="text-center">
+        <h2 class="display-4 corsair-font">Upload</h2>
+    </div>
     <div>
-        <h3>Upload</h3>
         <form method="post" enctype="multipart/form-data" onsubmit="return false;" id="upload-form">
-            <input type="file" id="Upload" accept=".csv" asp-for="Upload" onchange="FileSelected(this);return false;" />
+            <input type="file" id="Upload" accept=".csv" asp-for="Upload" onchange="FileSelected(this);return false;"/>
             <label id="label" for="Upload">Select CSV</label>
         </form>
         <div id="loader" class="loader"></div>

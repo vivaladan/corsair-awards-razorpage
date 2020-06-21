@@ -2,30 +2,33 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http.Features;
+using System.Linq;
 using Microsoft.VisualBasic.FileIO;
 
 namespace CorsairAwards.Services
 {
     public class CsvParser
     {
-        public List<Sample> ParseCsv(Stream stream)
+        public List<Sample> ParseCsv(string fileName, Stream fileStream)
         {
-            using var parser = new TextFieldParser(stream);
+            using var parser = new TextFieldParser(fileStream);
             parser.SetDelimiters(",");
             parser.HasFieldsEnclosedInQuotes = true;
 
             // skip the header
             parser.ReadLine();
+            var row = 0;
 
             var samples = new List<Sample>();
             while (!parser.EndOfData)
             {
                 var fields = parser.ReadFields();
+                row++;
 
                 samples.Add(new Sample
                 {
+                    FileName = fileName,
+                    FileRow = row,
                     Year = fields[0],
                     Quarter = fields[1],
                     Region = fields[2],
@@ -51,7 +54,7 @@ namespace CorsairAwards.Services
                     LaunchDate = ParseDate(fields[22]),
                     CorrectedShipLaunchDate = ParseDate(fields[23]),
                     PublishedMonth = fields[24],
-                    ShippedDate = fields[25],
+                    ShippedDate = ParseDate(fields[25]),
                     PublishDate = ParseDate(fields[26]),
                     Followup = fields[27],
                     PublishTurnaround = fields[28],
@@ -71,6 +74,8 @@ namespace CorsairAwards.Services
                 });
             }
 
+            var max = samples.Max(c => c.AwardDescription.Length);
+
             return samples;
         }
         
@@ -81,6 +86,9 @@ namespace CorsairAwards.Services
 
     public class Sample
     {
+        public int Id { get; set; }
+        public string FileName { get; set; }
+        public int FileRow { get; set; }
         public string Year { get; set; }
         public string Quarter { get; set; }
         public string Region { get; set; }
@@ -106,7 +114,7 @@ namespace CorsairAwards.Services
         public DateTime? LaunchDate { get; set; }
         public DateTime? CorrectedShipLaunchDate { get; set; }
         public string PublishedMonth { get; set; }
-        public string ShippedDate { get; set; }
+        public DateTime? ShippedDate { get; set; }
         public DateTime? PublishDate { get; set; }
         public string Followup { get; set; }
         public string PublishTurnaround { get; set; }
