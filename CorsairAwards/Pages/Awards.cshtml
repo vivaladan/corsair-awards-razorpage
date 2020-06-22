@@ -15,30 +15,42 @@
                     <div class="col">
                         <div class="form-group">
                             <label asp-for="Query.Category"></label>
-                            <select asp-for="Query.Category" asp-items="Model.Categories" class="form-control"></select>
+                            <select asp-for="Query.Category" asp-items="Model.Categories" class="form-control">
+                                <option value=""></option>
+                            </select>
                         </div>
-                        
+
                         <div class="form-group">
-                            <label asp-for="Query.SKU"></label>
-                            <input asp-for="Query.SKU" class="form-control">
+                            <label asp-for="Query.PartNumber"></label>
+                            <select asp-for="Query.PartNumber" asp-items="Model.PartNumbers" class="form-control">
+                                <option value=""></option>
+                            </select>
                         </div>
                         <div class="form-group">
-                            <label asp-for="Query.Product"></label>
-                            <input asp-for="Query.Product" class="form-control">
+                            <label asp-for="Query.PartDescription"></label>
+                            <select asp-for="Query.PartDescription" asp-items="Model.PartDescriptions" class="form-control">
+                                <option value=""></option>
+                            </select>
                         </div>
                     </div>
                     <div class="col">
                         <div class="form-group">
                             <label asp-for="Query.Region"></label>
-                            <input asp-for="Query.Region" class="form-control">
+                            <select asp-for="Query.Region" asp-items="Model.Regions" class="form-control">
+                                <option value=""></option>
+                            </select>
                         </div>
                         <div class="form-group">
                             <label asp-for="Query.Country"></label>
-                            <input asp-for="Query.Country" class="form-control">
+                            <select asp-for="Query.Country" asp-items="Model.Countries" class="form-control">
+                                <option value=""></option>
+                            </select>
                         </div>
                         <div class="form-group">
                             <label asp-for="Query.Year"></label>
-                            <input asp-for="Query.Year" class="form-control">
+                            <select asp-for="Query.Year" asp-items="Model.Years" class="form-control">
+                                <option value=""></option>
+                            </select>
                         </div>
                     </div>
                 </div>
@@ -51,54 +63,54 @@
         </form>
     </div>
     <div>
-            <table class="table">
-                <thead>
+        <table class="table">
+            <thead>
+            <tr>
+                <th scope="col">
+                    Region
+                </th>
+                <th scope="col">
+                    Country
+                </th>
+                <th scope="col">
+                    Site
+                </th>
+                <th scope="col">
+                    Purpose
+                </th>
+                <th scope="col">
+                    Category
+                </th>
+                <th scope="col">
+                    Part
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var sample in Model.Awards)
+            {
                 <tr>
-                    <th scope="col">
-                        Region
-                    </th>
-                    <th scope="col">
-                        Country
-                    </th>
-                    <th scope="col">
-                        Site
-                    </th>
-                    <th scope="col">
-                        Purpose
-                    </th>
-                    <th scope="col">
-                        Category
-                    </th>
-                    <th scope="col">
-                        Part
-                    </th>
+                    <td>
+                        @Html.DisplayFor(c => sample.Region)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(c => sample.Country)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(c => sample.Site)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(c => sample.Purpose)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(c => sample.Category)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(c => sample.PartDescription)
+                    </td>
                 </tr>
-                </thead>
-                <tbody>
-                @foreach (var sample in Model.Awards)
-                {
-                    <tr>
-                        <td>
-                            @Html.DisplayFor(c => sample.Region)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(c => sample.Country)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(c => sample.Site)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(c => sample.Purpose)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(c => sample.Category)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(c => sample.PartDescription)
-                        </td>
-                    </tr>
-                }
-                </tbody>
-            </table>
-        </div>
+            }
+            </tbody>
+        </table>
+    </div>
 </div>

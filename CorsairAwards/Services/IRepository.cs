@@ -10,5 +10,10 @@ namespace CorsairAwards.Services
         Task<IEnumerable<Sample>> GetSamples();
         Task<IEnumerable<Sample>> GetSamples(AwardsQuery query);
         Task<Dictionary<int, string>> GetCategories();
+        Task<Dictionary<int, string>> GetPartDescriptions();
+        Task<Dictionary<int, string>> GetPartNumbers();
+        Task<Dictionary<int, string>> GetRegions();
+        Task<Dictionary<int, string>> GetCountries();
+        Task<Dictionary<int, string>> GetYears();
     }
 }

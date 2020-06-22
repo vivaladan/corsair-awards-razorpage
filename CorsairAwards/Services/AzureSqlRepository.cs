@@ -27,6 +27,51 @@ namespace CorsairAwards.Services
                 .ToDictionary(c => (int)c.Id, c => (string)c.Name);
         }
         
+        public async Task<Dictionary<int, string>> GetPartDescriptions()
+        {
+            await using var connection = new SqlConnection(connectionString);
+            await connection.OpenAsync();
+
+            return (await connection.QueryAsync("SELECT * FROM PartDescriptions"))
+                .ToDictionary(c => (int)c.Id, c => (string)c.Name);
+        }
+        
+        public async Task<Dictionary<int, string>> GetPartNumbers()
+        {
+            await using var connection = new SqlConnection(connectionString);
+            await connection.OpenAsync();
+
+            return (await connection.QueryAsync("SELECT * FROM PartNumbers"))
+                .ToDictionary(c => (int)c.Id, c => (string)c.Name);
+        }
+        
+        public async Task<Dictionary<int, string>> GetRegions()
+        {
+            await using var connection = new SqlConnection(connectionString);
+            await connection.OpenAsync();
+
+            return (await connection.QueryAsync("SELECT * FROM Regions"))
+                .ToDictionary(c => (int)c.Id, c => (string)c.Name);
+        }
+        
+        public async Task<Dictionary<int, string>> GetCountries()
+        {
+            await using var connection = new SqlConnection(connectionString);
+            await connection.OpenAsync();
+
+            return (await connection.QueryAsync("SELECT * FROM Countries"))
+                .ToDictionary(c => (int)c.Id, c => (string)c.Name);
+        }
+        
+        public async Task<Dictionary<int, string>> GetYears()
+        {
+            await using var connection = new SqlConnection(connectionString);
+            await connection.OpenAsync();
+
+            return (await connection.QueryAsync("SELECT * FROM Years"))
+                .ToDictionary(c => (int)c.Id, c => (string)c.Name);
+        }
+
         public async Task<IEnumerable<Sample>> GetSamples()
         {
             await using var connection = new SqlConnection(connectionString);
@@ -48,16 +93,16 @@ namespace CorsairAwards.Services
                 filters.Add("Category = @Category");
             }
             
-            if (!string.IsNullOrWhiteSpace(query.SKU))
+            if (!string.IsNullOrWhiteSpace(query.PartNumber))
             {
-                query.SKU = query.SKU.Trim();
-                filters.Add("PartNumber = @SKU");
+                query.PartNumber = query.PartNumber.Trim();
+                filters.Add("PartNumber = @PartNumber");
             }
             
-            if (!string.IsNullOrWhiteSpace(query.Product))
+            if (!string.IsNullOrWhiteSpace(query.PartDescription))
             {
-                query.Product = query.Product.Trim();
-                filters.Add("PartDescription = @Product");
+                query.PartDescription = query.PartDescription.Trim();
+                filters.Add("PartDescription = @PartDescription");
             }
             
             if (!string.IsNullOrWhiteSpace(query.Region))
@@ -92,8 +137,50 @@ namespace CorsairAwards.Services
             await SqlBulkCopy(connection, samples);
             await connection.ExecuteAsync("MERGE Samples t USING #Samples s ON (s.FileName = t.FileName AND s.FileRow = t.FileRow) WHEN MATCHED THEN UPDATE SET t.Year = s.Year, t.Quarter = s.Quarter, t.Region = s.Region, t.Country = s.Country, t.Requestor = s.Requestor, t.Site = s.Site, t.SiteRanking = s.SiteRanking, t.OrderType = s.OrderType, t.Month = s.Month, t.Category = s.Category, t.PartDescription = s.PartDescription, t.PartNumber = s.PartNumber, t.SONumber = s.SONumber, t.OrderDate = s.OrderDate, t.Specialty = s.Specialty, t.Purpose = s.Purpose, t.Action = s.Action, t.SampleCost = s.SampleCost, t.ShipmentDate = s.ShipmentDate, t.ShipmentStatus = s.ShipmentStatus, t.ShipTurnaround = s.ShipTurnaround, t.Aging = s.Aging, t.LaunchDate = s.LaunchDate, t.CorrectedShipLaunchDate = s.CorrectedShipLaunchDate, t.PublishedMonth = s.PublishedMonth, t.ShippedDate = s.ShippedDate, t.PublishDate = s.PublishDate, t.Followup = s.Followup, t.PublishTurnaround = s.PublishTurnaround, t.ReviewUrl = s.ReviewUrl, t.AwardUrl = s.AwardUrl, t.AwardRank = s.AwardRank, t.WinsAnAward = s.WinsAnAward, t.AwardDescription = s.AwardDescription, t.Licence = s.Licence, t.Quote = s.Quote, t.Rating = s.Rating, t.EstimatedViews = s.EstimatedViews, t.YouTubeViews = s.YouTubeViews, t.Likes = s.Likes, t.Followers = s.Followers, t.VideoContent = s.VideoContent WHEN NOT MATCHED THEN INSERT VALUES (s.FileName, s.FileRow, s.Year, s.Quarter, s.Region, s.Country, s.Requestor, s.Site, s.SiteRanking, s.OrderType, s.Month, s.Category, s.PartDescription, s.PartNumber, s.SONumber, s.OrderDate, s.Specialty, s.Purpose, s.Action, s.SampleCost, s.ShipmentDate, s.ShipmentStatus, s.ShipTurnaround, s.Aging, s.LaunchDate, s.CorrectedShipLaunchDate, s.PublishedMonth, s.ShippedDate, s.PublishDate, s.Followup, s.PublishTurnaround, s.ReviewUrl, s.AwardUrl, s.AwardRank, s.WinsAnAward, s.AwardDescription, s.Licence, s.Quote, s.Rating, s.EstimatedViews, s.YouTubeViews, s.Likes, s.Followers, s.VideoContent);");
             
-            var categories = samples.GroupBy(c => c.Category).Where(c => !string.IsNullOrWhiteSpace(c.Key)).Select(c => c.Key);
+            var categories = samples.GroupBy(c => c.Category)
+                .Where(c => !string.IsNullOrWhiteSpace(c.Key))
+                .Select(c => c.Key);
+            
             await connection.ExecuteAsync("MERGE Categories t USING (SELECT @Name as Name) s ON (s.Name = t.Name) WHEN NOT MATCHED THEN INSERT VALUES (s.Name);", categories.Select(c => new { Name = c }));
+
+            var partDescriptions = samples.GroupBy(c => c.PartDescription)
+                .Where(c => !string.IsNullOrWhiteSpace(c.Key))
+                .Select(c => c.Key);
+            
+            await connection.ExecuteAsync("MERGE PartDescriptions t USING (SELECT @Name as Name) s ON (s.Name = t.Name) WHEN NOT MATCHED THEN INSERT VALUES (s.Name);", partDescriptions.Select(c => new { Name = c }));
+
+            var partNumbers = samples.GroupBy(c => c.PartNumber)
+                .Where(c => !string.IsNullOrWhiteSpace(c.Key))
+                .Select(c => c.Key);
+
+            await connection.ExecuteAsync("MERGE PartNumbers t USING (SELECT @Name as Name) s ON (s.Name = t.Name) WHEN NOT MATCHED THEN INSERT VALUES (s.Name);", partNumbers.Select(c => new { Name = c }));
+            
+            var regions = samples.GroupBy(c => c.Region)
+                .Where(c => !string.IsNullOrWhiteSpace(c.Key))
+                .Select(c => c.Key);
+
+            await connection.ExecuteAsync("MERGE Regions t USING (SELECT @Name as Name) s ON (s.Name = t.Name) WHEN NOT MATCHED THEN INSERT VALUES (s.Name);", regions.Select(c => new { Name = c }));
+            
+            var countries = samples.GroupBy(c => c.Country)
+                .Where(c => !string.IsNullOrWhiteSpace(c.Key))
+                .Select(c => c.Key);
+
+            await connection.ExecuteAsync("MERGE Countries t USING (SELECT @Name as Name) s ON (s.Name = t.Name) WHEN NOT MATCHED THEN INSERT VALUES (s.Name);", countries.Select(c => new { Name = c }));
+            
+            var years = samples.GroupBy(c => c.Year)
+                .Where(c => !string.IsNullOrWhiteSpace(c.Key))
+                .Select(c => c.Key);
+
+            await connection.ExecuteAsync("MERGE Years t USING (SELECT @Name as Name) s ON (s.Name = t.Name) WHEN NOT MATCHED THEN INSERT VALUES (s.Name);", years.Select(c => new { Name = c }));
+            
+            // var parts = samples
+            //     .GroupBy(c => c.PartNumber)
+            //     .Select(c => c.GroupBy(d => d.PartDescription))
+            //     .Where(c => c.Count() > 1)
+            //     .ToList();
+
+            // var groups = parts.Select(c => new { PartNumber = c, PartDescription = c.GroupBy(d => d.PartDescription).ToList()}).ToList();
+            // var inconsistentPartNames = groups.Where(c => c.PartDescription.Count > 1).ToList();
         }
 
         private static async Task SqlBulkCopy(SqlConnection connection, IEnumerable<Sample> samples)

@@ -48,6 +48,58 @@ CREATE TABLE Samples (
     VideoContent VARCHAR(50)
 );
 
-ALTER TABLE samples ADD CONSTRAINT IX_filename_filerow UNIQUE (FileName, FileRow);
+ALTER TABLE Samples ADD CONSTRAINT IX_filename_filerow UNIQUE (FileName, FileRow);
 
-SELECT * FROM samples
+DROP TABLE Categories;
+
+CREATE TABLE Categories (
+    Id int IDENTITY PRIMARY KEY,
+    Name VARCHAR(50),
+)
+
+SELECT * FROM Categories
+
+DROP TABLE PartDescriptions;
+
+CREATE TABLE PartDescriptions (
+    Id int IDENTITY PRIMARY KEY,
+    Name VARCHAR(100),
+)
+
+SELECT * FROM PartDescriptions
+
+DROP TABLE PartNumbers;
+
+CREATE TABLE PartNumbers (
+    Id int IDENTITY PRIMARY KEY,
+    Name VARCHAR(50),
+)
+
+SELECT * FROM PartNumbers
+
+DROP TABLE Regions;
+
+CREATE TABLE Regions (
+    Id int IDENTITY PRIMARY KEY,
+    Name VARCHAR(50),
+)
+
+SELECT * FROM Regions
+
+DROP TABLE Countries;
+
+CREATE TABLE Countries (
+    Id int IDENTITY PRIMARY KEY,
+    Name VARCHAR(50),
+)
+
+SELECT * FROM Countries
+
+DROP TABLE Years;
+
+CREATE TABLE Years (
+    Id int IDENTITY PRIMARY KEY,
+    Name VARCHAR(50),
+)
+
+SELECT * FROM Years
