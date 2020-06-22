@@ -1,6 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Data;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
+using CorsairAwards.Pages;
 using Dapper;
 using Microsoft.Data.SqlClient;
 
@@ -21,6 +24,55 @@ namespace CorsairAwards.Services
             await connection.OpenAsync();
 
             return await connection.QueryAsync<Sample>("SELECT * FROM samples");
+        }
+
+        public async Task<IEnumerable<Sample>> GetSamples(AwardsQuery query)
+        {
+            await using var connection = new SqlConnection(connectionString);
+            await connection.OpenAsync();
+
+            var filters = new List<string>();
+            
+            if (!string.IsNullOrWhiteSpace(query.Category))
+            {
+                query.Category = query.Category.Trim();
+                filters.Add("Category = @Category");
+            }
+            
+            if (!string.IsNullOrWhiteSpace(query.SKU))
+            {
+                query.SKU = query.SKU.Trim();
+                filters.Add("PartNumber = @SKU");
+            }
+            
+            if (!string.IsNullOrWhiteSpace(query.Product))
+            {
+                query.Product = query.Product.Trim();
+                filters.Add("PartDescription = @Product");
+            }
+            
+            if (!string.IsNullOrWhiteSpace(query.Region))
+            {
+                query.Region = query.Region.Trim();
+                filters.Add("Region = @Region");
+            }
+            
+            if (!string.IsNullOrWhiteSpace(query.Country))
+            {
+                query.Country = query.Country.Trim();
+                filters.Add("Country = @Country");
+            }
+            
+            if (!string.IsNullOrWhiteSpace(query.Year))
+            {
+                query.Year = query.Year.Trim();
+                filters.Add("Year = @Year");
+            }
+            
+            var sql = filters.Any() 
+                ? "SELECT * FROM samples WHERE " + string.Join(" AND ", filters) 
+                : "SELECT * FROM samples";
+            return await connection.QueryAsync<Sample>(sql, query);
         }
 
         public async Task InsertOrUpdateSamples(IEnumerable<Sample> samples)
