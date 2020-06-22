@@ -15,7 +15,7 @@
                     <div class="col">
                         <div class="form-group">
                             <label asp-for="Query.Category"></label>
-                            <input asp-for="Query.Category" class="form-control">
+                            <select asp-for="Query.Category" asp-items="Model.Categories" class="form-control"></select>
                         </div>
                         
                         <div class="form-group">

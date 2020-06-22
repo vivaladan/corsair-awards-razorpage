@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using CorsairAwards.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace CorsairAwards.Pages
 {
@@ -16,24 +17,31 @@ namespace CorsairAwards.Pages
         {
             this.repository = repository;
         }
-        
-        public void OnGet()
+
+        private async Task LoadOptions()
         {
-            
+            var categories = (await repository.GetCategories())
+                .Select(c => new SelectListItem(c.Value, c.Value)).ToList();
+            categories.Insert(0, new SelectListItem("", ""));
+            Categories = categories;
+        }
+        
+        public async Task OnGet()
+        {
+            await LoadOptions();
         }
 
         [BindProperty]
         public AwardsQuery Query { get; set; }
+        
+        public IEnumerable<SelectListItem> Categories { get; set; }
         
         public IEnumerable<Sample> Awards { get; set; } = Enumerable.Empty<Sample>();
         
         
         public async Task OnPost()
         {
-            // if (!ModelState.IsValid)
-            // {
-            //     return Page();
-            // }
+            await LoadOptions();
 
             Awards = await repository.GetSamples(Query);
         }

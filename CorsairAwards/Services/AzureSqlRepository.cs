@@ -18,14 +18,23 @@ namespace CorsairAwards.Services
             this.connectionString = connectionString;
         }
 
+        public async Task<Dictionary<int, string>> GetCategories()
+        {
+            await using var connection = new SqlConnection(connectionString);
+            await connection.OpenAsync();
+
+            return (await connection.QueryAsync("SELECT * FROM Categories"))
+                .ToDictionary(c => (int)c.Id, c => (string)c.Name);
+        }
+        
         public async Task<IEnumerable<Sample>> GetSamples()
         {
             await using var connection = new SqlConnection(connectionString);
             await connection.OpenAsync();
 
-            return await connection.QueryAsync<Sample>("SELECT * FROM samples");
+            return await connection.QueryAsync<Sample>("SELECT * FROM Samples");
         }
-
+        
         public async Task<IEnumerable<Sample>> GetSamples(AwardsQuery query)
         {
             await using var connection = new SqlConnection(connectionString);
@@ -75,15 +84,16 @@ namespace CorsairAwards.Services
             return await connection.QueryAsync<Sample>(sql, query);
         }
 
-        public async Task InsertOrUpdateSamples(IEnumerable<Sample> samples)
+        public async Task InsertOrUpdateSamples(List<Sample> samples)
         {
             await using var connection = new SqlConnection(connectionString);
             await connection.OpenAsync();
-            
-            await SqlBulkCopy(connection, samples);
-            
 
+            await SqlBulkCopy(connection, samples);
             await connection.ExecuteAsync("MERGE Samples t USING #Samples s ON (s.FileName = t.FileName AND s.FileRow = t.FileRow) WHEN MATCHED THEN UPDATE SET t.Year = s.Year, t.Quarter = s.Quarter, t.Region = s.Region, t.Country = s.Country, t.Requestor = s.Requestor, t.Site = s.Site, t.SiteRanking = s.SiteRanking, t.OrderType = s.OrderType, t.Month = s.Month, t.Category = s.Category, t.PartDescription = s.PartDescription, t.PartNumber = s.PartNumber, t.SONumber = s.SONumber, t.OrderDate = s.OrderDate, t.Specialty = s.Specialty, t.Purpose = s.Purpose, t.Action = s.Action, t.SampleCost = s.SampleCost, t.ShipmentDate = s.ShipmentDate, t.ShipmentStatus = s.ShipmentStatus, t.ShipTurnaround = s.ShipTurnaround, t.Aging = s.Aging, t.LaunchDate = s.LaunchDate, t.CorrectedShipLaunchDate = s.CorrectedShipLaunchDate, t.PublishedMonth = s.PublishedMonth, t.ShippedDate = s.ShippedDate, t.PublishDate = s.PublishDate, t.Followup = s.Followup, t.PublishTurnaround = s.PublishTurnaround, t.ReviewUrl = s.ReviewUrl, t.AwardUrl = s.AwardUrl, t.AwardRank = s.AwardRank, t.WinsAnAward = s.WinsAnAward, t.AwardDescription = s.AwardDescription, t.Licence = s.Licence, t.Quote = s.Quote, t.Rating = s.Rating, t.EstimatedViews = s.EstimatedViews, t.YouTubeViews = s.YouTubeViews, t.Likes = s.Likes, t.Followers = s.Followers, t.VideoContent = s.VideoContent WHEN NOT MATCHED THEN INSERT VALUES (s.FileName, s.FileRow, s.Year, s.Quarter, s.Region, s.Country, s.Requestor, s.Site, s.SiteRanking, s.OrderType, s.Month, s.Category, s.PartDescription, s.PartNumber, s.SONumber, s.OrderDate, s.Specialty, s.Purpose, s.Action, s.SampleCost, s.ShipmentDate, s.ShipmentStatus, s.ShipTurnaround, s.Aging, s.LaunchDate, s.CorrectedShipLaunchDate, s.PublishedMonth, s.ShippedDate, s.PublishDate, s.Followup, s.PublishTurnaround, s.ReviewUrl, s.AwardUrl, s.AwardRank, s.WinsAnAward, s.AwardDescription, s.Licence, s.Quote, s.Rating, s.EstimatedViews, s.YouTubeViews, s.Likes, s.Followers, s.VideoContent);");
+            
+            var categories = samples.GroupBy(c => c.Category).Where(c => !string.IsNullOrWhiteSpace(c.Key)).Select(c => c.Key);
+            await connection.ExecuteAsync("MERGE Categories t USING (SELECT @Name as Name) s ON (s.Name = t.Name) WHEN NOT MATCHED THEN INSERT VALUES (s.Name);", categories.Select(c => new { Name = c }));
         }
 
         private static async Task SqlBulkCopy(SqlConnection connection, IEnumerable<Sample> samples)
