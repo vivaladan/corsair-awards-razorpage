@@ -8,7 +8,8 @@ namespace CorsairAwards.Services
     {
         Task InsertOrUpdateSamples(List<Sample> samples);
         Task<IEnumerable<Sample>> GetSamples();
-        Task<IEnumerable<Sample>> GetSamples(AwardsQuery query);
+        Task<SampleResults> GetSamples(AwardsQuery query);
+        Task<SampleResults> GetAwards(AwardsQuery query);
         Task<Dictionary<int, string>> GetCategories();
         Task<Dictionary<int, string>> GetPartDescriptions();
         Task<Dictionary<int, string>> GetPartNumbers();

@@ -60,6 +60,17 @@ namespace CorsairAwards.Pages
         
         public IEnumerable<SelectListItem> Years { get; set; }
 
+        [BindProperty] 
+        public int CurrentPage { get; set; } = 1;
+        
+        public int PageSize { get; set; } = 50;
+
+        public int Total { get; set; }
+
+        public int Showing => Awards.Count() + (CurrentPage - 1) * PageSize;
+
+        public int TotalPages => (int)Math.Ceiling(decimal.Divide(Total, PageSize));
+
         public IEnumerable<Sample> Awards { get; set; } = Enumerable.Empty<Sample>();
         
         
@@ -67,7 +78,13 @@ namespace CorsairAwards.Pages
         {
             await LoadOptions();
 
-            Awards = await repository.GetSamples(Query);
+            Query.Skip = (CurrentPage * PageSize) - PageSize;
+            Query.Take = PageSize;
+            
+            var sampleResults = await repository.GetSamples(Query);
+            
+            Awards = sampleResults.Samples;
+            Total = sampleResults.Count;
         }
     }
 
@@ -84,5 +101,9 @@ namespace CorsairAwards.Pages
         public string Country { get; set; }
 
         public string Year { get; set; }
+
+        public int Skip { get; set; }
+
+        public int Take { get; set; }
     }
 }

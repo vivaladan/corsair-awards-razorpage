@@ -18,6 +18,11 @@ namespace CorsairAwards.Services
             this.connectionString = connectionString;
         }
 
+        public Task<SampleResults> GetAwards(AwardsQuery query)
+        {
+            throw new System.NotImplementedException();
+        }
+
         public async Task<Dictionary<int, string>> GetCategories()
         {
             await using var connection = new SqlConnection(connectionString);
@@ -79,54 +84,77 @@ namespace CorsairAwards.Services
 
             return await connection.QueryAsync<Sample>("SELECT * FROM Samples");
         }
+
+        // public async Task<SampleResults> GetAwards(
+        //     AwardsQuery query, int currentPage, int pageSize)
+        // {
+        //     
+        //     await using var connection = new SqlConnection(connectionString);
+        //     await connection.OpenAsync();
+        // }
         
-        public async Task<IEnumerable<Sample>> GetSamples(AwardsQuery query)
+        public async Task<SampleResults> GetSamples(AwardsQuery query)
         {
             await using var connection = new SqlConnection(connectionString);
             await connection.OpenAsync();
 
-            var filters = new List<string>();
+            var filters = ListFilters(query);
+            var filter = filters.Any() ? $"WHERE {string.Join(" AND ", filters)}" : "";
+
+            var samples = await connection.QueryAsync<Sample>(
+                $"SELECT * FROM samples {filter} ORDER BY Id ASC OFFSET @Skip ROWS FETCH NEXT @Take ROWS ONLY;", query);
             
+            var count = await connection.QuerySingleAsync<int>(
+                $"SELECT Count(*) FROM samples {filter}", query);
+
+            return new SampleResults
+            {
+                Count = count,
+                Samples = samples,
+            };
+        }
+
+        private static List<string> ListFilters(AwardsQuery query)
+        {
+            var filters = new List<string>();
+
             if (!string.IsNullOrWhiteSpace(query.Category))
             {
                 query.Category = query.Category.Trim();
                 filters.Add("Category = @Category");
             }
-            
+
             if (!string.IsNullOrWhiteSpace(query.PartNumber))
             {
                 query.PartNumber = query.PartNumber.Trim();
                 filters.Add("PartNumber = @PartNumber");
             }
-            
+
             if (!string.IsNullOrWhiteSpace(query.PartDescription))
             {
                 query.PartDescription = query.PartDescription.Trim();
                 filters.Add("PartDescription = @PartDescription");
             }
-            
+
             if (!string.IsNullOrWhiteSpace(query.Region))
             {
                 query.Region = query.Region.Trim();
                 filters.Add("Region = @Region");
             }
-            
+
             if (!string.IsNullOrWhiteSpace(query.Country))
             {
                 query.Country = query.Country.Trim();
                 filters.Add("Country = @Country");
             }
-            
+
             if (!string.IsNullOrWhiteSpace(query.Year))
             {
                 query.Year = query.Year.Trim();
                 filters.Add("Year = @Year");
             }
-            
-            var sql = filters.Any() 
-                ? "SELECT * FROM samples WHERE " + string.Join(" AND ", filters) 
-                : "SELECT * FROM samples";
-            return await connection.QueryAsync<Sample>(sql, query);
+
+            return filters;
         }
 
         public async Task InsertOrUpdateSamples(List<Sample> samples)
@@ -342,5 +370,11 @@ namespace CorsairAwards.Services
 
             return dt;
         }
+    }
+    
+    public class SampleResults
+    {
+        public int Count { get; set; }
+        public IEnumerable<Sample> Samples { get; set; }
     }
 }

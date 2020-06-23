@@ -1,4 +1,10 @@
 DROP TABLE Samples;
+DROP TABLE Categories;
+DROP TABLE PartDescriptions;
+DROP TABLE Countries;
+DROP TABLE Years;
+DROP TABLE PartNumbers;
+DROP TABLE Regions;
 
 CREATE TABLE Samples (
     Id int IDENTITY PRIMARY KEY,
@@ -50,52 +56,30 @@ CREATE TABLE Samples (
 
 ALTER TABLE Samples ADD CONSTRAINT IX_filename_filerow UNIQUE (FileName, FileRow);
 
-DROP TABLE Categories;
-
 CREATE TABLE Categories (
     Id int IDENTITY PRIMARY KEY,
     Name VARCHAR(50),
 )
-
-SELECT * FROM Categories
-
-DROP TABLE PartDescriptions;
 
 CREATE TABLE PartDescriptions (
     Id int IDENTITY PRIMARY KEY,
     Name VARCHAR(100),
 )
 
-SELECT * FROM PartDescriptions
-
-DROP TABLE PartNumbers;
-
 CREATE TABLE PartNumbers (
     Id int IDENTITY PRIMARY KEY,
     Name VARCHAR(50),
 )
-
-SELECT * FROM PartNumbers
-
-DROP TABLE Regions;
 
 CREATE TABLE Regions (
     Id int IDENTITY PRIMARY KEY,
     Name VARCHAR(50),
 )
 
-SELECT * FROM Regions
-
-DROP TABLE Countries;
-
 CREATE TABLE Countries (
     Id int IDENTITY PRIMARY KEY,
     Name VARCHAR(50),
 )
-
-SELECT * FROM Countries
-
-DROP TABLE Years;
 
 CREATE TABLE Years (
     Id int IDENTITY PRIMARY KEY,
@@ -103,3 +87,13 @@ CREATE TABLE Years (
 )
 
 SELECT * FROM Years
+SELECT * FROM PartDescriptions
+SELECT * FROM PartNumbers
+SELECT * FROM Regions
+SELECT * FROM Countries
+SELECT * FROM Categories
+
+SELECT * FROM Samples WHERE Year = '2019' 
+ORDER BY Id ASC OFFSET 10 ROWS FETCH NEXT 10 ROWS ONLY
+
+SELECT Count(*) FROM Samples WHERE Year = '2019'
